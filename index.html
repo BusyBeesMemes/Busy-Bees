@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busy Bees Meme Hive</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            text-align: center;
+            background-image: url('https://cdn.pixabay.com/photo/2016/03/31/20/51/cartoon-1295114_1280.png');
+            background-size: cover;
+            background-repeat: repeat;
+            background-position: center;
+        }
+        header {
+            background-color: rgba(76, 175, 80, 0.8); /* Semi-transparent for visibility */
+            color: white;
+            padding: 1em;
+        }
+        main {
+            max-width: 800px;
+            margin: 2em auto;
+            padding: 1em;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .links {
+            list-style: none;
+            padding: 0;
+        }
+        .links li {
+            margin: 1em 0;
+        }
+        .links a {
+            display: inline-block;
+            padding: 0.5em 1em;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .links a:hover {
+            background-color: #0056b3;
+        }
+        #trending {
+            margin-top: 2em;
+        }
+        #trending ul {
+            list-style: none;
+            padding: 0;
+        }
+        #trending li {
+            margin: 0.5em 0;
+        }
+        footer {
+            text-align: center;
+            padding: 1em;
+            background-color: rgba(221, 221, 221, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Busy Bees Meme Hive</h1>
+        <p>Your hub for meme coins at BusyBeesMemeHive.com! Featuring Busy Bees $HONEYZ and more. Built with help from Grok.</p>
+    </header>
+    <main>
+        <h2>Useful Links</h2>
+        <ul class="links">
+            <li><a href="https://dexscreener.com/" target="_blank" rel="noopener noreferrer">DexScreener</a> - Track DEX tokens and pairs.</li>
+            <li><a href="https://www.coingecko.com/" target="_blank" rel="noopener noreferrer">CoinGecko</a> - Cryptocurrency prices and market data.</li>
+            <li><a href="https://pump.fun/3PNSqxkxQ2NTvKVXN7PcSHt1nuHpNXRNPSi6fgEDpump" target="_blank" rel="noopener noreferrer">Buy Busy Bees ($HONEYZ)</a> - On Pump.fun.</li>
+            <li><a href="https://pump.fun/dWd8vyAH9pQMMG1bkQWiGnyx8LjjuTDHsk8qcsCBAGS" target="_blank" rel="noopener noreferrer">Buy SailanaInu ($SAILANA)</a> - On Pump.fun.</li>
+            <li><a href="https://trustwallet.com/download" target="_blank" rel="noopener noreferrer">Download Trust Wallet</a> - Secure crypto wallet.</li>
+        </ul>
+        
+        <h2>Live Feed of Trending Memes (from CoinGecko)</h2>
+        <p>Featuring trending coins, often including new memes.</p>
+        <div id="trending">
+            <p>Loading trending memes...</p>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 Busy Bees. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Fetch trending coins from CoinGecko API
+        fetch('https://api.coingecko.com/api/v3/search/trending')
+            .then(response => response.json())
+            .then(data => {
+                const trendingDiv = document.getElementById('trending');
+                trendingDiv.innerHTML = ''; // Clear loading message
+                const ul = document.createElement('ul');
+                data.coins.forEach(coin => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = `https://www.coingecko.com/en/coins/${coin.item.id}`;
+                    a.textContent = `${coin.item.name} (${coin.item.symbol.toUpperCase()})`;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+                trendingDiv.appendChild(ul);
+            })
+            .catch(error => {
+                document.getElementById('trending').innerHTML = '<p>Error loading trending memes. Please try again later.</p>';
+                console.error('Error:', error);
+            });
+    </script>
+</body>
+</html>
