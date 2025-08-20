@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Busy Bees Meme Hive</title>
+    <title>Busy Bee Meme Hive</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,7 +11,7 @@
             padding: 0;
             color: #333;
             text-align: center;
-            background-image: url('https://cdn.pixabay.com/photo/2016/03/31/20/51/cartoon-1295114_1280.png');
+            background-image: url('https://img.freepik.com/free-vector/hand-drawn-bee-pattern_23-2148910168.jpg');
             background-size: cover;
             background-repeat: repeat;
             background-position: center;
@@ -47,7 +47,7 @@
         .links a:hover {
             background-color: #0056b3;
         }
-        #trending {
+        #trending, #honeyz-price {
             margin-top: 2em;
         }
         #trending ul {
@@ -56,6 +56,11 @@
         }
         #trending li {
             margin: 0.5em 0;
+        }
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
         }
         footer {
             text-align: center;
@@ -66,7 +71,7 @@
 </head>
 <body>
     <header>
-        <h1>Busy Bees Meme Hive</h1>
+        <h1>Busy Bee Meme Hive</h1>
         <p>Your hub for meme coins at BusyBeesMemeHive.com! Featuring Busy Bees $HONEYZ and more. Built with help from Grok.</p>
     </header>
     <main>
@@ -75,9 +80,12 @@
             <li><a href="https://dexscreener.com/" target="_blank" rel="noopener noreferrer">DexScreener</a> - Track DEX tokens and pairs.</li>
             <li><a href="https://www.coingecko.com/" target="_blank" rel="noopener noreferrer">CoinGecko</a> - Cryptocurrency prices and market data.</li>
             <li><a href="https://pump.fun/3PNSqxkxQ2NTvKVXN7PcSHt1nuHpNXRNPSi6fgEDpump" target="_blank" rel="noopener noreferrer">Buy Busy Bees ($HONEYZ)</a> - On Pump.fun.</li>
-            <li><a href="https://pump.fun/dWd8vyAH9pQMMG1bkQWiGnyx8LjjuTDHsk8qcsCBAGS" target="_blank" rel="noopener noreferrer">Buy SailanaInu ($SAILANA)</a> - On Pump.fun.</li>
             <li><a href="https://trustwallet.com/download" target="_blank" rel="noopener noreferrer">Download Trust Wallet</a> - Secure crypto wallet.</li>
         </ul>
+        
+        <h2>Live Price and Chart for Busy Bees $HONEYZ</h2>
+        <p id="honeyz-price">Loading live price...</p>
+        <iframe src="https://dexscreener.com/solana/3PNSqxkxQ2NTvKVXN7PcSHt1nuHpNXRNPSi6fgEDpump?embed=1&theme=dark&trades=0&info=0" allowfullscreen></iframe>
         
         <h2>Live Feed of Trending Memes (from CoinGecko)</h2>
         <p>Featuring trending coins, often including new memes.</p>
@@ -90,6 +98,22 @@
     </footer>
 
     <script>
+        // Fetch live price for Busy Bees $HONEYZ from DexScreener API
+        fetch('https://api.dexscreener.com/latest/dex/pairs/solana/3PNSqxkxQ2NTvKVXN7PcSHt1nuHpNXRNPSi6fgEDpump')
+            .then(response => response.json())
+            .then(data => {
+                if (data.pair) {
+                    const price = data.pair.priceUsd;
+                    document.getElementById('honeyz-price').innerHTML = `Current Price: $${price} USD`;
+                } else {
+                    document.getElementById('honeyz-price').innerHTML = 'Price not available yet (token may not be launched).';
+                }
+            })
+            .catch(error => {
+                document.getElementById('honeyz-price').innerHTML = 'Error loading price.';
+                console.error('Error:', error);
+            });
+
         // Fetch trending coins from CoinGecko API
         fetch('https://api.coingecko.com/api/v3/search/trending')
             .then(response => response.json())
