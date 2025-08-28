@@ -84,12 +84,67 @@
 
         <h2>Buy Popular Meme Coins</h2>
         <ul class="links">
-            <li><a href="https://app.uniswap.org/swap?outputCurrency=0x6982508145454ce325ddbeb8b889e46787c60a28" target="_blank" rel="noopener noreferrer">Buy PEPE</a> - On Uniswap.</li>
+            <li><a href="https://app.uniswap.org/swap?outputCurrency=0x6982508145454ce325ddbe47a25d4ec3d2311933" target="_blank" rel="noopener noreferrer">Buy PEPE</a> - On Uniswap.</li>
             <li><a href="https://app.uniswap.org/swap?outputCurrency=0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce" target="_blank" rel="noopener noreferrer">Buy SHIB</a> - On Uniswap.</li>
             <li><a href="https://www.binance.com/en/trade/DOGE_USDT" target="_blank" rel="noopener noreferrer">Buy DOGE</a> - On Binance.</li>
-            <li><a href="https://bags.fm/pump/dWd8vyAH9pQMMG1bkQWiGnyx8LjjuTDHsk8qcsCBAGS" target="_blank" rel="noopener noreferrer">Buy Sailana Inu</a> - On Bags App.</li>
+            <li><a href="https://jup.ag/swap/SOL-dWd8vyAH9pQMMG1bkQWiGnyx8LjjuTDHsk8qcsCBAGS" target="_blank" rel="noopener noreferrer">Buy Sailana Inu</a> - On Jupiter (Solana DEX).</li>
+            <li><a href="https://dexscreener.com/solana/7Q2afV64in6N6SeZsAHi0Ktd6LKc6oCKkkZMoK4zmsk" target="_blank" rel="noopener noreferrer">Buy DRIP on Solana</a> - On DexScreener.</li>
         </ul>
         
         <h2>Live Price and Chart for Busy Bees $HONEYZ</h2>
         <p id="honeyz-price">Loading live price...</p>
-        <iframe src="https://dexscreener.com/solana/3PNSqxkxQ2NTvKVXN7PcSH
+        <iframe src="https://dexscreener.com/solana/3PNSqxkxQ2NTvKVXN7PcSHt1nuHpNXRNPSi6fgEDpump?embed=1&theme=dark&trades=0&info=0" allowfullscreen></iframe>
+        
+        <h2>Live Feed of Trending Memes (from CoinGecko)</h2>
+        <p>Featuring trending coins, often including new memes.</p>
+        <div id="trending">
+            <p>Loading trending memes...</p>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 Busy Bees. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Fetch live price for Busy Bees $HONEYZ from DexScreener API
+        fetch('https://api.dexscreener.com/latest/dex/pairs/solana/3PNSqxkxQ2NTvKVXN7PcSHt1nuHpNXRNPSi6fgEDpump')
+            .then(response => response.json())
+            .then(data => {
+                if (data.pair) {
+                    const price = data.pair.priceUsd;
+                    document.getElementById('honeyz-price').innerHTML = `Current Price: $${price} USD`;
+                } else {
+                    document.getElementById('honeyz-price').innerHTML = 'Price not available yet (token may not be launched).';
+                }
+            })
+            .catch(error => {
+                document.getElementById('honeyz-price').innerHTML = 'Error loading price.';
+                console.error('Error:', error);
+            });
+
+        // Fetch trending coins from CoinGecko API
+        fetch('https://api.coingecko.com/api/v3/search/trending')
+            .then(response => response.json())
+            .then(data => {
+                const trendingDiv = document.getElementById('trending');
+                trendingDiv.innerHTML = ''; // Clear loading message
+                const ul = document.createElement('ul');
+                data.coins.forEach(coin => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = `https://www.coingecko.com/en/coins/${coin.item.id}`;
+                    a.textContent = `${coin.item.name} (${coin.item.symbol.toUpperCase()})`;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+                trendingDiv.appendChild(ul);
+            })
+            .catch(error => {
+                document.getElementById('trending').innerHTML = '<p>Error loading trending memes. Please try again later.</p>';
+                console.error('Error:', error);
+            });
+    </script>
+</body>
+</html>
