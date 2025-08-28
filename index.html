@@ -84,7 +84,6 @@
             <li><a href="https://app.uniswap.org/swap?outputCurrency=0x6982508145454ce325ddbe47a25d4ec3d2311933" target="_blank" rel="noopener noreferrer">Buy PEPE</a> - On Uniswap.</li>
             <li><a href="https://app.uniswap.org/swap?outputCurrency=0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce" target="_blank" rel="noopener noreferrer">Buy SHIB</a> - On Uniswap.</li>
             <li><a href="https://www.binance.com/en/trade/DOGE_USDT" target="_blank" rel="noopener noreferrer">Buy DOGE</a> - On Binance.</li>
-            <li><a href="https://jup.ag/swap/SOL-dWd8vyAH9pQMMG1bkQWiGnyx8LjjuTDHsk8qcsCBAGS" target="_blank" rel="noopener noreferrer">Buy Sailana Inu</a> - On Jupiter (Solana DEX).</li>
         </ul>
         
         <h2>Live Price and Chart for Busy Bees $HONEYZ</h2>
@@ -102,26 +101,4 @@
     </footer>
 
     <script>
-        // Fetch live price for Busy Bees $HONEYZ from DexScreener API
-        fetch('https://api.dexscreener.com/latest/dex/pairs/solana/3PNSqxkxQ2NTvKVXN7PcSHt1nuHpNXRNPSi6fgEDpump')
-            .then(response => response.json())
-            .then(data => {
-                if (data.pair) {
-                    const price = data.pair.priceUsd;
-                    document.getElementById('honeyz-price').innerHTML = `Current Price: $${price} USD`;
-                } else {
-                    document.getElementById('honeyz-price').innerHTML = 'Price not available yet (token may not be launched).';
-                }
-            })
-            .catch(error => {
-                document.getElementById('honeyz-price').innerHTML = 'Error loading price.';
-                console.error('Error:', error);
-            });
-
-        // Fetch trending coins from CoinGecko API
-        fetch('https://api.coingecko.com/api/v3/search/trending')
-            .then(response => response.json())
-            .then(data => {
-                const trendingDiv = document.getElementById('trending');
-                trendingDiv.innerHTML = ''; // Clear loading message
-                const ul = document.create
+        // Fetch live price for Busy Bees $H
