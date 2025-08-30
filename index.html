@@ -69,7 +69,7 @@
             background-color: #0056b3;
             transform: translateY(-4px);
         }
-        #trending, #honeyz-price {
+        #trending, #honey-price {
             margin-top: 2em;
         }
         #trending ul {
@@ -109,7 +109,7 @@
 <body>
     <header>
         <h1>Busy Bee Meme Hive</h1>
-        <p>Your hub for meme coins at BusyBeesMemeHive.com! Featuring Busy Bees $HONEYZ and more. Built with help from Grok.</p>
+        <p>Your hub for meme coins at BusyBeesMemeHive.com! Featuring Busy Bees $HONEY and more.</p>
     </header>
     <main>
         <h2>Useful Links</h2>
@@ -124,11 +124,12 @@
             <li><a href="https://app.uniswap.org/swap?outputCurrency=0x6982508145454ce325ddbe47a25d4ec3d2311933" target="_blank" rel="noopener noreferrer">Buy PEPE - On Uniswap.</a></li>
             <li><a href="https://app.uniswap.org/swap?outputCurrency=0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce" target="_blank" rel="noopener noreferrer">Buy SHIB - On Uniswap.</a></li>
             <li><a href="https://www.binance.com/en/trade/DOGE_USDT" target="_blank" rel="noopener noreferrer">Buy DOGE - On Binance.</a></li>
+            <li><a href="https://jup.ag/swap/SOL-CAbj4F3mMbigZjTxJDxxoAhoF3hR8rMChgTfiLhzBAGS" target="_blank" rel="noopener noreferrer">Buy HONEY - On Jupiter (Solana DEX).</a></li>
         </ul>
         
-        <h2>Live Price and Chart for Busy Bees $HONEYZ</h2>
-        <p id="honeyz-price">Loading live price...</p>
-        <iframe src="https://dexscreener.com/solana/3PNSqxkxQ2NTvKVXN7PcSHt1nuHpNXRNPSi6fgEDpump?embed=1&theme=dark&trades=0&info=0" allowfullscreen></iframe>
+        <h2>Live Price and Chart for Busy Bees $HONEY</h2>
+        <p id="honey-price">Loading live price...</p>
+        <iframe src="https://dexscreener.com/solana/DMrnDht7nMChpCA3taSvhTiFRPzQ8bngNGm43WNDqq3Q?embed=1&theme=dark&trades=0&info=0" allowfullscreen></iframe>
         
         <h2>Live Feed of Trending Memes (from CoinGecko)</h2>
         <p>Featuring trending coins, often including new memes.</p>
@@ -141,19 +142,19 @@
     </footer>
 
     <script>
-        // Fetch live price for Busy Bees $HONEYZ from DexScreener API
-        fetch('https://api.dexscreener.com/latest/dex/pairs/solana/3PNSqxkxQ2NTvKVXN7PcSHt1nuHpNXRNPSi6fgEDpump')
+        // Fetch live price for Busy Bees $HONEY from DexScreener API
+        fetch('https://api.dexscreener.com/latest/dex/pairs/solana/DMrnDht7nMChpCA3taSvhTiFRPzQ8bngNGm43WNDqq3Q')
             .then(response => response.json())
             .then(data => {
                 if (data.pair) {
                     const price = data.pair.priceUsd;
-                    document.getElementById('honeyz-price').innerHTML = `Current Price: $${price} USD`;
+                    document.getElementById('honey-price').innerHTML = `Current Price: $${price} USD`;
                 } else {
-                    document.getElementById('honeyz-price').innerHTML = 'Price not available yet (token may not be launched).';
+                    document.getElementById('honey-price').innerHTML = 'Price not available yet (token may not be launched).';
                 }
             })
             .catch(error => {
-                document.getElementById('honeyz-price').innerHTML = 'Error loading price.';
+                document.getElementById('honey-price').innerHTML = 'Error loading price.';
                 console.error('Error:', error);
             });
 
