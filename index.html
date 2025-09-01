@@ -15,7 +15,7 @@
             line-height: 1.6;
         }
         header {
-            background-color: #4caf50; /* Green for a fresh look */
+            background-color: #000000; /* Changed from green to black */
             color: white;
             padding: 2em 1em;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -69,26 +69,28 @@
             background-color: #0056b3;
             transform: translateY(-4px);
         }
-        #trending, #honey-price {
+        #meme-analysis, #honey-price {
             margin-top: 2em;
         }
-        #trending ul {
+        #meme-analysis ul {
             list-style: none;
             padding: 0;
             text-align: left;
         }
-        #trending li {
-            margin: 0.5em 0;
-            padding: 0.5em;
+        #meme-analysis li {
+            margin: 1em 0;
+            padding: 1em;
             background-color: #f9f9f9;
             border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        #trending a {
-            color: #007bff;
-            text-decoration: none;
+        #meme-analysis strong {
+            display: block;
+            font-size: 1.2em;
+            margin-bottom: 0.5em;
         }
-        #trending a:hover {
-            text-decoration: underline;
+        #meme-analysis span {
+            display: block;
         }
         iframe {
             width: 100%;
@@ -109,7 +111,7 @@
 <body>
     <header>
         <h1>Busy Bee Meme Hive</h1>
-        <p>Your hub for meme coins at BusyBeesMemeHive.com! Featuring Busy Bees $HONEY and more.</p>
+        <p>Your hub for meme coins at BusyBeesMemeHive.com! Featuring Busy Bees $HONEY and more. Built with help from Grok.</p>
     </header>
     <main>
         <h2>Useful Links</h2>
@@ -131,10 +133,9 @@
         <p id="honey-price">Loading live price...</p>
         <iframe src="https://dexscreener.com/solana/DMrnDht7nMChpCA3taSvhTiFRPzQ8bngNGm43WNDqq3Q?embed=1&theme=dark&trades=0&info=0" allowfullscreen></iframe>
         
-        <h2>Live Feed of Trending Memes (from CoinGecko)</h2>
-        <p>Featuring trending coins, often including new memes.</p>
-        <div id="trending">
-            <p>Loading trending memes...</p>
+        <h2>Live Data Analysis for Popular Meme Coins</h2>
+        <div id="meme-analysis">
+            <p>Loading data...</p>
         </div>
     </main>
     <footer>
@@ -158,27 +159,45 @@
                 console.error('Error:', error);
             });
 
-        // Fetch trending coins from CoinGecko API
-        fetch('https://api.coingecko.com/api/v3/search/trending')
+        // Fetch live data for PEPE, SHIB, DOGE from CoinGecko API
+        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=pepe,shiba-inu,dogecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h')
             .then(response => response.json())
             .then(data => {
-                const trendingDiv = document.getElementById('trending');
-                trendingDiv.innerHTML = ''; // Clear loading message
+                const analysisDiv = document.getElementById('meme-analysis');
+                analysisDiv.innerHTML = ''; // Clear loading message
                 const ul = document.createElement('ul');
-                data.coins.forEach(coin => {
+
+                data.forEach(coin => {
                     const li = document.createElement('li');
-                    const a = document.createElement('a');
-                    a.href = `https://www.coingecko.com/en/coins/${coin.item.id}`;
-                    a.textContent = `${coin.item.name} (${coin.item.symbol.toUpperCase()})`;
-                    a.target = '_blank';
-                    a.rel = 'noopener noreferrer';
-                    li.appendChild(a);
+                    const name = document.createElement('strong');
+                    name.textContent = `${coin.name} (${coin.symbol.toUpperCase()})`;
+                    li.appendChild(name);
+
+                    const price = document.createElement('span');
+                    price.textContent = `Current Price: $${coin.current_price.toFixed(8)} USD`;
+                    li.appendChild(price);
+
+                    const change24h = document.createElement('span');
+                    const changeValue = coin.price_change_percentage_24h_in_currency || coin.price_change_percentage_24h;
+                    change24h.textContent = `24h Change: ${changeValue.toFixed(2)}%`;
+                    change24h.style.color = changeValue >= 0 ? 'green' : 'red';
+                    li.appendChild(change24h);
+
+                    const marketCap = document.createElement('span');
+                    marketCap.textContent = `Market Cap: $${coin.market_cap.toLocaleString()} USD`;
+                    li.appendChild(marketCap);
+
+                    const volume24h = document.createElement('span');
+                    volume24h.textContent = `24h Volume: $${coin.total_volume.toLocaleString()} USD`;
+                    li.appendChild(volume24h);
+
                     ul.appendChild(li);
                 });
-                trendingDiv.appendChild(ul);
+
+                analysisDiv.appendChild(ul);
             })
             .catch(error => {
-                document.getElementById('trending').innerHTML = '<p>Error loading trending memes. Please try again later.</p>';
+                document.getElementById('meme-analysis').innerHTML = '<p>Error loading meme coin data. Please try again later.</p>';
                 console.error('Error:', error);
             });
     </script>
