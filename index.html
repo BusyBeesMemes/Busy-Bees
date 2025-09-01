@@ -35,12 +35,15 @@
             margin: 0.5em 0 0;
             font-size: 1em; /* Reduced font size */
         }
-        #btc-link {
+        #top-links {
             margin: 1em auto;
             max-width: 900px;
             text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 1em;
         }
-        #btc-link a {
+        #top-links a {
             display: inline-block;
             padding: 1em 2em;
             background-color: #ffd700;
@@ -52,12 +55,12 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             position: relative;
         }
-        #btc-link a:hover {
+        #top-links a:hover {
             background-color: #000000;
             color: #ffd700;
             transform: translateY(-4px);
         }
-        #btc-link a::before {
+        #top-links a::before {
             content: '🐝';
             position: absolute;
             left: -30px;
@@ -215,8 +218,9 @@
         <h1>Busy Bee Meme Hive</h1>
         <p>Your hub for meme coins at BusyBeesMemeHive.com! Featuring Busy Bees $HONEY and more.</p>
     </header>
-    <div id="btc-link">
+    <div id="top-links">
         <a href="https://link.trustwallet.com/buy?asset=c0" target="_blank" rel="noopener noreferrer">Buy BTC - Via Trust Wallet.</a>
+        <a href="https://link.trustwallet.com/open_url?coin_id=501&url=https://jup.ag/swap?inputMint=SOL&outputMint=WLFinEv6ypjkczcS83FZqFpgFZYwQXutRbxGe7oC16g" target="_blank" rel="noopener noreferrer">Buy WLFI - Via Trust Wallet.</a>
     </div>
     <main>
         <h2>Useful Links</h2>
@@ -266,8 +270,8 @@
                 console.error('Error:', error);
             });
 
-        // Fetch live data for PEPE, SHIB, DOGE, BTC, BONK, WikiCat from CoinGecko API
-        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=pepe,shiba-inu,dogecoin,bitcoin,bonk,wikicat&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h')
+        // Fetch live data for PEPE, SHIB, DOGE, BTC, BONK, WikiCat, WLFI from CoinGecko API
+        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=pepe,shiba-inu,dogecoin,bitcoin,bonk,wikicat,world-liberty-financial&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h')
             .then(response => response.json())
             .then(data => {
                 const analysisDiv = document.getElementById('meme-analysis');
