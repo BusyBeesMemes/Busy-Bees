@@ -24,20 +24,51 @@
         header {
             background-color: #ffd700;
             color: #000000;
-            padding: 2em 1em;
+            padding: 1em 1em; /* Reduced padding */
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         header h1 {
             margin: 0;
-            font-size: 2.5em;
+            font-size: 2em; /* Reduced font size */
         }
         header p {
             margin: 0.5em 0 0;
-            font-size: 1.2em;
+            font-size: 1em; /* Reduced font size */
+        }
+        #btc-link {
+            margin: 1em auto;
+            max-width: 900px;
+            text-align: center;
+        }
+        #btc-link a {
+            display: inline-block;
+            padding: 1em 2em;
+            background-color: #ffd700;
+            color: #000000;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        #btc-link a:hover {
+            background-color: #000000;
+            color: #ffd700;
+            transform: translateY(-4px);
+        }
+        #btc-link a::before {
+            content: '🐝';
+            position: absolute;
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+            animation: buzz 1s ease-in-out infinite;
         }
         main {
             max-width: 900px;
-            margin: 2em auto;
+            margin: 0 auto 2em;
             padding: 1.5em;
             background-color: #000000;
             border-radius: 12px;
@@ -184,6 +215,9 @@
         <h1>Busy Bee Meme Hive</h1>
         <p>Your hub for meme coins at BusyBeesMemeHive.com! Featuring Busy Bees $HONEY and more.</p>
     </header>
+    <div id="btc-link">
+        <a href="https://www.binance.com/en/trade/BTC_USDT" target="_blank" rel="noopener noreferrer">Buy BTC - On Binance.</a>
+    </div>
     <main>
         <h2>Useful Links</h2>
         <ul class="links">
@@ -198,7 +232,6 @@
             <li><a href="https://app.uniswap.org/swap?outputCurrency=0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce" target="_blank" rel="noopener noreferrer">Buy SHIB - On Uniswap.</a></li>
             <li><a href="https://www.binance.com/en/trade/DOGE_USDT" target="_blank" rel="noopener noreferrer">Buy DOGE - On Binance.</a></li>
             <li><a href="https://jup.ag/swap?inputMint=SOL&outputMint=CAbj4F3mMbigZjTxJDxxoAhoF3hR8rMChgTfiLhzBAGS" target="_blank" rel="noopener noreferrer">Buy HONEY - On Jupiter (Solana DEX).</a></li>
-            <li><a href="https://www.binance.com/en/trade/BTC_USDT" target="_blank" rel="noopener noreferrer">Buy BTC - On Binance.</a></li>
             <li><a href="https://jup.ag/swap?inputMint=SOL&outputMint=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" target="_blank" rel="noopener noreferrer">Buy BONK - On Jupiter (Solana DEX).</a></li>
             <li><a href="https://pancakeswap.finance/swap?outputCurrency=0x6ec90334d89dbdc89e08a133271be3d104128edb" target="_blank" rel="noopener noreferrer">Buy WikiCat - On PancakeSwap.</a></li>
         </ul>
@@ -233,8 +266,8 @@
                 console.error('Error:', error);
             });
 
-        // Fetch live data for PEPE, SHIB, DOGE from CoinGecko API
-        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=pepe,shiba-inu,dogecoin&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h')
+        // Fetch live data for PEPE, SHIB, DOGE, BTC, BONK, WikiCat from CoinGecko API
+        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=pepe,shiba-inu,dogecoin,bitcoin,bonk,wikicat&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h')
             .then(response => response.json())
             .then(data => {
                 const analysisDiv = document.getElementById('meme-analysis');
