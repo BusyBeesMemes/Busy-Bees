@@ -9,14 +9,19 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            color: #333;
+            color: #ffd700;
             text-align: center;
-            background-color: #ffd700; /* Gold yellow for a modern bee theme */
+            background-color: #000000;
+            background-image: linear-gradient(30deg, #ffd700 12%, transparent 12.5%, transparent 87%, #ffd700 87.5%), 
+                              linear-gradient(150deg, #ffd700 12%, transparent 12.5%, transparent 87%, #ffd700 87.5%), 
+                              linear-gradient(60deg, #ffd700 25%, transparent 25.5%, transparent 74.5%, #ffd700 75%);
+            background-size: 80px 140px;
+            background-position: 0 0, 0 0, 40px 70px;
             line-height: 1.6;
         }
         header {
-            background-color: #000000; /* Changed from green to black */
-            color: white;
+            background-color: #ffd700;
+            color: #000000;
             padding: 2em 1em;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
@@ -32,13 +37,13 @@
             max-width: 900px;
             margin: 2em auto;
             padding: 1.5em;
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: #000000;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         }
         h2 {
-            color: #4caf50;
-            border-bottom: 2px solid #eee;
+            color: #ffd700;
+            border-bottom: 2px solid #ffd700;
             padding-bottom: 0.5em;
             margin-bottom: 1em;
         }
@@ -57,8 +62,8 @@
         .links a {
             display: block;
             padding: 1em;
-            background-color: #007bff;
-            color: white;
+            background-color: #ffd700;
+            color: #000000;
             text-decoration: none;
             border-radius: 8px;
             font-weight: bold;
@@ -66,7 +71,8 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .links a:hover {
-            background-color: #0056b3;
+            background-color: #000000;
+            color: #ffd700;
             transform: translateY(-4px);
         }
         #meme-analysis, #honey-price {
@@ -80,7 +86,8 @@
         #meme-analysis li {
             margin: 1em 0;
             padding: 1em;
-            background-color: #f9f9f9;
+            background-color: #ffd700;
+            color: #000000;
             border-radius: 6px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
@@ -102,8 +109,8 @@
         footer {
             text-align: center;
             padding: 1em;
-            background-color: #ddd;
-            color: #666;
+            background-color: #ffd700;
+            color: #000000;
             margin-top: 2em;
         }
     </style>
@@ -111,7 +118,7 @@
 <body>
     <header>
         <h1>Busy Bee Meme Hive</h1>
-        <p>Your hub for meme coins at BusyBeesMemeHive.com! Featuring Busy Bees $HONEY and more. Built with help from Grok.</p>
+        <p>Your hub for meme coins at BusyBeesMemeHive.com! Featuring Busy Bees $HONEY and more. </p>
     </header>
     <main>
         <h2>Useful Links</h2>
@@ -126,7 +133,7 @@
             <li><a href="https://app.uniswap.org/swap?outputCurrency=0x6982508145454ce325ddbe47a25d4ec3d2311933" target="_blank" rel="noopener noreferrer">Buy PEPE - On Uniswap.</a></li>
             <li><a href="https://app.uniswap.org/swap?outputCurrency=0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce" target="_blank" rel="noopener noreferrer">Buy SHIB - On Uniswap.</a></li>
             <li><a href="https://www.binance.com/en/trade/DOGE_USDT" target="_blank" rel="noopener noreferrer">Buy DOGE - On Binance.</a></li>
-            <li><a href="https://jup.ag/swap/SOL-CAbj4F3mMbigZjTxJDxxoAhoF3hR8rMChgTfiLhzBAGS" target="_blank" rel="noopener noreferrer">Buy HONEY - On Jupiter (Solana DEX).</a></li>
+            <li><a href="https://jup.ag/swap?inputMint=SOL&outputMint=CAbj4F3mMbigZjTxJDxxoAhoF3hR8rMChgTfiLhzBAGS" target="_blank" rel="noopener noreferrer">Buy HONEY - On Jupiter (Solana DEX).</a></li>
         </ul>
         
         <h2>Live Price and Chart for Busy Bees $HONEY</h2>
@@ -180,7 +187,7 @@
                     const change24h = document.createElement('span');
                     const changeValue = coin.price_change_percentage_24h_in_currency || coin.price_change_percentage_24h;
                     change24h.textContent = `24h Change: ${changeValue.toFixed(2)}%`;
-                    change24h.style.color = changeValue >= 0 ? 'green' : 'red';
+                    // Removed color styling to stick to black and yellow theme
                     li.appendChild(change24h);
 
                     const marketCap = document.createElement('span');
