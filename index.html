@@ -212,7 +212,7 @@
             margin-top: 2em;
             text-align: left;
         }
-        #swap-checker input {
+        #swap-checker input, #swap-checker select {
             margin: 0.5em 0;
             padding: 0.5em;
             width: 100%;
@@ -246,7 +246,7 @@
     <div class="bee">🐝</div>
     <header>
         <h1>Busy Bee Meme Hive</h1>
-        <p>Your hub for meme coins at BusyBeesMemeHive.com! Featuring Busy Bees $HONEY and more.</p>
+        <p>Your hub for meme coins at BusyBeesMemeHive.com! Featuring Busy Bees $HONEY and more. 100% secure links with help from Grok.</p>
     </header>
     <div id="top-links">
         <a href="https://link.trustwallet.com/buy?asset=c0" target="_blank" rel="noopener noreferrer">Buy BTC - Via Trust Wallet.</a>
@@ -274,16 +274,16 @@
         <p id="honey-price">Loading live price...</p>
         <iframe src="https://dexscreener.com/solana/DMrnDht7nMChpCA3taSvhTiFRPzQ8bngNGm43WNDqq3Q?embed=1&theme=dark&trades=0&info=0" allowfullscreen></iframe>
         
-        <h2>Swap Checker</h2>
+        <h2>Swap Checker (Powered by CoinGecko Prices)</h2>
         <div id="swap-checker">
-            <label for="inputMint">Input Mint (default SOL):</label>
-            <input type="text" id="inputMint" value="So11111111111111111111111111111111111111112" placeholder="Input Token Mint">
+            <label for="inputCoin">Input Coin (CoinGecko ID, e.g., bitcoin):</label>
+            <input type="text" id="inputCoin" value="bitcoin" placeholder="Input Coin ID">
             
-            <label for="outputMint">Output Mint (Token Address):</label>
-            <input type="text" id="outputMint" placeholder="Enter Token Address">
+            <label for="outputCoin">Output Coin (CoinGecko ID, e.g., ethereum):</label>
+            <input type="text" id="outputCoin" value="ethereum" placeholder="Output Coin ID">
             
-            <label for="amount">Input Amount (in smallest units, e.g., 100000000 for 0.1 SOL):</label>
-            <input type="number" id="amount" value="100000000" placeholder="Amount">
+            <label for="amount">Input Amount:</label>
+            <input type="number" id="amount" value="1" step="0.01" placeholder="Amount">
             
             <button onclick="checkSwap()">Check Swap Value</button>
             <div id="swap-result"></div>
@@ -357,23 +357,25 @@
                 console.error('Error:', error);
             });
         
-        // Swap Checker function
+        // Swap Checker function using CoinGecko API
         function checkSwap() {
-            const inputMint = document.getElementById('inputMint').value;
-            const outputMint = document.getElementById('outputMint').value;
-            const amount = document.getElementById('amount').value;
+            const inputCoin = document.getElementById('inputCoin').value;
+            const outputCoin = document.getElementById('outputCoin').value;
+            const amount = parseFloat(document.getElementById('amount').value);
             const resultDiv = document.getElementById('swap-result');
             resultDiv.innerHTML = 'Loading...';
 
-            fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amount}&slippageBps=50`)
+            fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${inputCoin},${outputCoin}&vs_currencies=usd`)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.outAmount) {
-                        // Assuming SOL decimals 9, but for general, we'd need decimals API
-                        const outAmount = data.outAmount / 1000000000; // Adjust based on token decimals; here assuming 9 for output like BONK
-                        resultDiv.innerHTML = `Estimated Output Amount: ${outAmount} tokens<br>Route: ${data.routePlan.map(plan => plan.swapInfo.outputMint).join(' -> ')}`;
+                    if (data[inputCoin] && data[outputCoin]) {
+                        const inputPrice = data[inputCoin].usd;
+                        const outputPrice = data[outputCoin].usd;
+                        const inputValue = amount * inputPrice;
+                        const outputAmount = inputValue / outputPrice;
+                        resultDiv.innerHTML = `${amount} ${inputCoin.toUpperCase()} ≈ ${outputAmount.toFixed(6)} ${outputCoin.toUpperCase()}<br>(Based on current USD prices: 1 ${inputCoin.toUpperCase()} = $${inputPrice}, 1 ${outputCoin.toUpperCase()} = $${outputPrice})<br>Note: This is an estimate; actual swaps may vary due to fees and slippage.`;
                     } else {
-                        resultDiv.innerHTML = 'Error fetching swap quote.';
+                        resultDiv.innerHTML = 'Error: Invalid coin IDs or data not available.';
                     }
                 })
                 .catch(error => {
