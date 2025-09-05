@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Busy Bee Meme Hive</title>
+    <!-- Include Hive Keychain SDK for wallet connectivity -->
+    <script src="https://unpkg.com/hive-keychain@latest/dist/hive-keychain.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -19,21 +21,20 @@
             background-position: 0 0, 0 0, 40px 70px;
             line-height: 1.6;
             position: relative;
-            /* Removed overflow: hidden to enable scrolling */
         }
         header {
             background-color: #ffd700;
             color: #000000;
-            padding: 1em 1em; /* Reduced padding */
+            padding: 1em;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         header h1 {
             margin: 0;
-            font-size: 2em; /* Reduced font size */
+            font-size: 2em;
         }
         header p {
             margin: 0.5em 0 0;
-            font-size: 1em; /* Reduced font size */
+            font-size: 1em;
         }
         #top-links {
             margin: 1em auto;
@@ -85,7 +86,7 @@
             padding-bottom: 0.5em;
             margin-bottom: 1em;
         }
-        .links {
+        .links, .buy-links {
             list-style: none;
             padding: 0;
             display: flex;
@@ -93,19 +94,13 @@
             justify-content: center;
             gap: 1em;
         }
-        .links li {
+        .links li, .buy-links li {
             flex: 1 1 200px;
             max-width: 300px;
         }
         .buy-links {
-            list-style: none;
-            padding: 0;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 1em;
-        }
-        .buy-links li {
-            max-width: none;
         }
         .links a, .buy-links a {
             display: block;
@@ -143,30 +138,13 @@
             z-index: 0;
             animation: fly 20s linear infinite;
         }
-        .bee:nth-child(1) {
-            animation-delay: 0s;
-            top: 20%;
-        }
-        .bee:nth-child(2) {
-            animation-delay: 5s;
-            top: 50%;
-        }
-        .bee:nth-child(3) {
-            animation-delay: 10s;
-            top: 80%;
-        }
+        .bee:nth-child(1) { animation-delay: 0s; top: 20%; }
+        .bee:nth-child(2) { animation-delay: 5s; top: 50%; }
+        .bee:nth-child(3) { animation-delay: 10s; top: 80%; }
         @keyframes fly {
-            0% {
-                left: -50px;
-                transform: rotate(0deg);
-            }
-            50% {
-                transform: rotate(10deg);
-            }
-            100% {
-                left: 100vw;
-                transform: rotate(0deg);
-            }
+            0% { left: -50px; transform: rotate(0deg); }
+            50% { transform: rotate(10deg); }
+            100% { left: 100vw; transform: rotate(0deg); }
         }
         #meme-analysis, #honey-price {
             margin-top: 2em;
@@ -199,6 +177,41 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        #swap-aggregator, #wallet-connect {
+            margin-top: 2em;
+            text-align: left;
+        }
+        #swap-aggregator select, #swap-aggregator input {
+            margin: 0.5em 0;
+            padding: 0.5em;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #000000;
+            color: #ffd700;
+            border: 1px solid #ffd700;
+        }
+        #swap-aggregator button, #connect-wallet {
+            padding: 0.5em 1em;
+            background-color: #ffd700;
+            color: #000000;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 0.5em;
+        }
+        #swap-aggregator button:hover, #connect-wallet:hover {
+            background-color: #000000;
+            color: #ffd700;
+            border: 1px solid #ffd700;
+        }
+        #swap-aggregator button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        #swap-quote, #swap-result, #wallet-status {
+            margin-top: 1em;
+            color: #ffd700;
+        }
         footer {
             text-align: center;
             padding: 1em;
@@ -208,36 +221,6 @@
             position: relative;
             z-index: 1;
         }
-        #swap-checker {
-            margin-top: 2em;
-            text-align: left;
-        }
-        #swap-checker input, #swap-checker select {
-            margin: 0.5em 0;
-            padding: 0.5em;
-            width: 100%;
-            box-sizing: border-box;
-            background-color: #000000;
-            color: #ffd700;
-            border: 1px solid #ffd700;
-        }
-        #swap-checker button {
-            padding: 0.5em 1em;
-            background-color: #ffd700;
-            color: #000000;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        #swap-checker button:hover {
-            background-color: #000000;
-            color: #ffd700;
-            border: 1px solid #ffd700;
-        }
-        #swap-result {
-            margin-top: 1em;
-            color: #ffd700;
-        }
     </style>
 </head>
 <body>
@@ -246,46 +229,57 @@
     <div class="bee">🐝</div>
     <header>
         <h1>Busy Bee Meme Hive</h1>
-        <p>Your hub for meme coins at BusyBeesMemeHive.com! Featuring Busy Bees $HONEY.</p>
+        <p>Your hub for meme coins and token swaps at BusyBeesMemeHive.com! Featuring Busy Bees $HONEY.</p>
     </header>
     <div id="top-links">
-        <a href="https://link.trustwallet.com/buy?asset=c0" target="_blank" rel="noopener noreferrer">Buy BTC - Via Trust Wallet.</a>
-        <a href="https://link.trustwallet.com/open_url?coin_id=60&url=https://app.uniswap.org/swap?outputCurrency=0xda5e1988097297dcdc1f90d4dfe7909e847cbef6" target="_blank" rel="noopener noreferrer">Buy WLFI - Via Trust Wallet.</a>
+        <a href="https://link.trustwallet.com/buy?asset=c0" target="_blank" rel="noopener noreferrer">Buy BTC - Via Trust Wallet</a>
+        <a href="https://link.trustwallet.com/open_url?coin_id=60&url=https://app.uniswap.org/swap?outputCurrency=0xda5e1988097297dcdc1f90d4dfe7909e847cbef6" target="_blank" rel="noopener noreferrer">Buy WLFI - Via Trust Wallet</a>
     </div>
     <main>
         <h2>Useful Links</h2>
         <ul class="links">
-            <li><a href="https://dexscreener.com/" target="_blank" rel="noopener noreferrer">DexScreener - Track DEX tokens and pairs.</a></li>
-            <li><a href="https://www.coingecko.com/" target="_blank" rel="noopener noreferrer">CoinGecko - Cryptocurrency prices and market data.</a></li>
-            <li><a href="https://trustwallet.com/download" target="_blank" rel="noopener noreferrer">Download Trust Wallet - Secure crypto wallet.</a></li>
+            <li><a href="https://dexscreener.com/" target="_blank" rel="noopener noreferrer">DexScreener - Track DEX tokens and pairs</a></li>
+            <li><a href="https://www.coingecko.com/" target="_blank" rel="noopener noreferrer">CoinGecko - Cryptocurrency prices and market data</a></li>
+            <li><a href="https://trustwallet.com/download" target="_blank" rel="noopener noreferrer">Download Trust Wallet - Secure crypto wallet</a></li>
         </ul>
 
         <h2>Buy Popular Meme Coins</h2>
         <ul class="buy-links">
-            <li><a href="https://link.trustwallet.com/open_url?coin_id=60&url=https://app.uniswap.org/swap?outputCurrency=0x6982508145454ce325ddbe47a25d4ec3d2311933" target="_blank" rel="noopener noreferrer">Buy PEPE - Via Trust Wallet.</a></li>
-            <li><a href="https://link.trustwallet.com/open_url?coin_id=60&url=https://app.uniswap.org/swap?outputCurrency=0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce" target="_blank" rel="noopener noreferrer">Buy SHIB - Via Trust Wallet.</a></li>
-            <li><a href="https://link.trustwallet.com/buy?asset=c3" target="_blank" rel="noopener noreferrer">Buy DOGE - Via Trust Wallet.</a></li>
-            <li><a href="https://link.trustwallet.com/open_url?coin_id=501&url=https://raydium.io/swap/?inputCurrency=sol&outputCurrency=CAbj4F3mMbigZjTxJDxxoAhoF3hR8rMChgTfiLhzBAGS&inputAmount=1&fixed=in" target="_blank" rel="noopener noreferrer">Buy HONEY - Via Trust Wallet.</a></li>
-            <li><a href="https://link.trustwallet.com/open_url?coin_id=501&url=https://raydium.io/swap/?inputCurrency=sol&outputCurrency=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&inputAmount=1&fixed=in" target="_blank" rel="noopener noreferrer">Buy BONK - Via Trust Wallet.</a></li>
-            <li><a href="https://link.trustwallet.com/open_url?coin_id=714&url=https://pancakeswap.finance/swap?outputCurrency=0x6ec90334d89dbdc89e08a133271be3d104128edb" target="_blank" rel="noopener noreferrer">Buy WikiCat - Via Trust Wallet.</a></li>
+            <li><a href="https://link.trustwallet.com/open_url?coin_id=60&url=https://app.uniswap.org/swap?outputCurrency=0x6982508145454ce325ddbe47a25d4ec3d2311933" target="_blank" rel="noopener noreferrer">Buy PEPE - Via Trust Wallet</a></li>
+            <li><a href="https://link.trustwallet.com/open_url?coin_id=60&url=https://app.uniswap.org/swap?outputCurrency=0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce" target="_blank" rel="noopener noreferrer">Buy SHIB - Via Trust Wallet</a></li>
+            <li><a href="https://link.trustwallet.com/buy?asset=c3" target="_blank" rel="noopener noreferrer">Buy DOGE - Via Trust Wallet</a></li>
+            <li><a href="https://link.trustwallet.com/open_url?coin_id=501&url=https://raydium.io/swap/?inputCurrency=sol&outputCurrency=CAbj4F3mMbigZjTxJDxxoAhoF3hR8rMChgTfiLhzBAGS&inputAmount=1&fixed=in" target="_blank" rel="noopener noreferrer">Buy HONEY - Via Trust Wallet</a></li>
+            <li><a href="https://link.trustwallet.com/open_url?coin_id=501&url=https://raydium.io/swap/?inputCurrency=sol&outputCurrency=DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263&inputAmount=1&fixed=in" target="_blank" rel="noopener noreferrer">Buy BONK - Via Trust Wallet</a></li>
+            <li><a href="https://link.trustwallet.com/open_url?coin_id=714&url=https://pancakeswap.finance/swap?outputCurrency=0x6ec90334d89dbdc89e08a133271be3d104128edb" target="_blank" rel="noopener noreferrer">Buy WikiCat - Via Trust Wallet</a></li>
         </ul>
         
         <h2>Live Price and Chart for Busy Bees $HONEY</h2>
         <p id="honey-price">Loading live price...</p>
         <iframe src="https://dexscreener.com/solana/DMrnDht7nMChpCA3taSvhTiFRPzQ8bngNGm43WNDqq3Q?embed=1&theme=dark&trades=0&info=0" allowfullscreen></iframe>
         
-        <h2>Swap Checker (Powered by CoinGecko Prices)</h2>
-        <div id="swap-checker">
-            <label for="inputCoin">Input Coin (CoinGecko ID, e.g., bitcoin):</label>
-            <input type="text" id="inputCoin" value="bitcoin" placeholder="Input Coin ID">
-            
-            <label for="outputCoin">Output Coin (CoinGecko ID, e.g., ethereum):</label>
-            <input type="text" id="outputCoin" value="ethereum" placeholder="Output Coin ID">
-            
-            <label for="amount">Input Amount:</label>
-            <input type="number" id="amount" value="1" step="0.01" placeholder="Amount">
-            
-            <button onclick="checkSwap()">Check Swap Value</button>
+        <h2>Swap Tokens (Powered by Busy Bees Aggregator)</h2>
+        <div id="wallet-connect">
+            <button id="connect-wallet">Connect Wallet</button>
+            <span id="wallet-status">No wallet connected</span>
+        </div>
+        <div id="swap-aggregator">
+            <label for="inputToken">Input Token:</label>
+            <select id="inputToken">
+                <option value="HIVE">HIVE</option>
+                <option value="SWAP.HIVE">SWAP.HIVE</option>
+                <option value="HONEY">HONEY</option>
+            </select>
+            <label for="outputToken">Output Token:</label>
+            <select id="outputToken">
+                <option value="SWAP.HIVE">SWAP.HIVE</option>
+                <option value="HIVE">HIVE</option>
+                <option value="HONEY">HONEY</option>
+            </select>
+            <label for="swapAmount">Input Amount:</label>
+            <input type="number" id="swapAmount" value="1" step="0.01" placeholder="Amount">
+            <button id="get-quote" onclick="getSwapQuote()">Get Quote</button>
+            <button id="execute-swap" onclick="executeSwap()" disabled>Execute Swap</button>
+            <div id="swap-quote"></div>
             <div id="swap-result"></div>
         </div>
         
@@ -299,6 +293,40 @@
     </footer>
 
     <script>
+        // Wallet connectivity
+        let walletConnected = false;
+        let userAccount = null;
+
+        document.getElementById('connect-wallet').addEventListener('click', async () => {
+            if (window.hive_keychain) {
+                try {
+                    const response = await window.hive_keychain.requestHandshake();
+                    if (response.success) {
+                        userAccount = response.data.username;
+                        walletConnected = true;
+                        document.getElementById('wallet-status').textContent = `Connected: ${userAccount}`;
+                        document.getElementById('connect-wallet').style.display = 'none';
+                    } else {
+                        document.getElementById('wallet-status').textContent = 'Failed to connect Hive Keychain';
+                    }
+                } catch (error) {
+                    document.getElementById('wallet-status').textContent = 'Error: ' + error.message;
+                }
+            } else if (window.ethereum) {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    userAccount = accounts[0];
+                    walletConnected = true;
+                    document.getElementById('wallet-status').textContent = `Connected: ${userAccount.slice(0, 6)}...${userAccount.slice(-4)}`;
+                    document.getElementById('connect-wallet').style.display = 'none';
+                } catch (error) {
+                    document.getElementById('wallet-status').textContent = 'Error: ' + error.message;
+                }
+            } else {
+                document.getElementById('wallet-status').textContent = 'Please install Hive Keychain or MetaMask';
+            }
+        });
+
         // Fetch live price for Busy Bees $HONEY from DexScreener API
         fetch('https://api.dexscreener.com/latest/dex/pairs/solana/DMrnDht7nMChpCA3taSvhTiFRPzQ8bngNGm43WNDqq3Q')
             .then(response => response.json())
@@ -315,74 +343,5 @@
                 console.error('Error:', error);
             });
 
-        // Fetch live data for PEPE, SHIB, DOGE, BTC, BONK, WikiCat, WLFI from CoinGecko API
-        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=pepe,shiba-inu,dogecoin,bitcoin,bonk,wikicat,world-liberty-financial&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h')
-            .then(response => response.json())
-            .then(data => {
-                const analysisDiv = document.getElementById('meme-analysis');
-                analysisDiv.innerHTML = ''; // Clear loading message
-                const ul = document.createElement('ul');
-
-                data.forEach(coin => {
-                    const li = document.createElement('li');
-                    const name = document.createElement('strong');
-                    name.textContent = `${coin.name} (${coin.symbol.toUpperCase()})`;
-                    li.appendChild(name);
-
-                    const price = document.createElement('span');
-                    price.textContent = `Current Price: $${coin.current_price.toFixed(8)} USD`;
-                    li.appendChild(price);
-
-                    const change24h = document.createElement('span');
-                    const changeValue = coin.price_change_percentage_24h_in_currency || coin.price_change_percentage_24h;
-                    change24h.textContent = `24h Change: ${changeValue.toFixed(2)}%`;
-                    // Removed color styling to stick to black and yellow theme
-                    li.appendChild(change24h);
-
-                    const marketCap = document.createElement('span');
-                    marketCap.textContent = `Market Cap: $${coin.market_cap.toLocaleString()} USD`;
-                    li.appendChild(marketCap);
-
-                    const volume24h = document.createElement('span');
-                    volume24h.textContent = `24h Volume: $${coin.total_volume.toLocaleString()} USD`;
-                    li.appendChild(volume24h);
-
-                    ul.appendChild(li);
-                });
-
-                analysisDiv.appendChild(ul);
-            })
-            .catch(error => {
-                document.getElementById('meme-analysis').innerHTML = '<p>Error loading meme coin data. Please try again later.</p>';
-                console.error('Error:', error);
-            });
-        
-        // Swap Checker function using CoinGecko API
-        function checkSwap() {
-            const inputCoin = document.getElementById('inputCoin').value;
-            const outputCoin = document.getElementById('outputCoin').value;
-            const amount = parseFloat(document.getElementById('amount').value);
-            const resultDiv = document.getElementById('swap-result');
-            resultDiv.innerHTML = 'Loading...';
-
-            fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${inputCoin},${outputCoin}&vs_currencies=usd`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data[inputCoin] && data[outputCoin]) {
-                        const inputPrice = data[inputCoin].usd;
-                        const outputPrice = data[outputCoin].usd;
-                        const inputValue = amount * inputPrice;
-                        const outputAmount = inputValue / outputPrice;
-                        resultDiv.innerHTML = `${amount} ${inputCoin.toUpperCase()} ≈ ${outputAmount.toFixed(6)} ${outputCoin.toUpperCase()}<br>(Based on current USD prices: 1 ${inputCoin.toUpperCase()} = $${inputPrice}, 1 ${outputCoin.toUpperCase()} = $${outputPrice})<br>Note: This is an estimate; actual swaps may vary due to fees and slippage.`;
-                    } else {
-                        resultDiv.innerHTML = 'Error: Invalid coin IDs or data not available.';
-                    }
-                })
-                .catch(error => {
-                    resultDiv.innerHTML = 'Error: ' + error.message;
-                    console.error('Error:', error);
-                });
-        }
-    </script>
-</body>
-</html>
+        // Fetch live data for meme coins from CoinGecko API
+        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=pepe,shiba-inu,dogecoin,bitcoin,bonk,wikicat,world-liberty-financial&order=market_cap_desc&per_page=100&page=1&sparkline=false&​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
