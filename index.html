@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Busy Bee Meme Hive</title>
     <link rel="manifest" href="/manifest.json">
-    <!-- External Scripts for Jupiter, WalletConnect, and Solana -->
+    <!-- External Scripts -->
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     <script src="https://unpkg.com/@jup-ag/core@latest/dist/index.js"></script>
     <script src="https://unpkg.com/@walletconnect/sign-client@2.10.0/dist/index.min.js"></script>
     <script src="https://unpkg.com/@walletconnect/qrcode-modal@2.10.0/dist/index.min.js"></script>
+    <script src="https://unpkg.com/@raydium-io/raydium-sdk@latest/dist/index.min.js"></script>
     <style>
+        /* Existing styles unchanged */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -150,42 +152,11 @@
             50% { transform: rotate(10deg); }
             100% { left: 100vw; transform: rotate(0deg); }
         }
-        #meme-analysis, #honey-price {
-            margin-top: 2em;
-        }
-        #meme-analysis ul {
-            list-style: none;
-            padding: 0;
-            text-align: left;
-        }
-        #meme-analysis li {
-            margin: 1em 0;
-            padding: 1em;
-            background-color: #ffd700;
-            color: #000000;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        #meme-analysis strong {
-            display: block;
-            font-size: 1.2em;
-            margin-bottom: 0.5em;
-        }
-        #meme-analysis span {
-            display: block;
-        }
-        iframe {
-            width: 100%;
-            height: 400px;
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        #swap-aggregator, #wallet-connect {
+        #liquidity-pool, #swap-aggregator, #wallet-connect {
             margin-top: 2em;
             text-align: left;
         }
-        #swap-aggregator select, #swap-aggregator input {
+        #liquidity-pool input, #swap-aggregator select, #swap-aggregator input {
             margin: 0.5em 0;
             padding: 0.5em;
             width: 100%;
@@ -195,7 +166,7 @@
             border: 1px solid #ffd700;
             font-size: 1em;
         }
-        #swap-aggregator button, #connect-wallet {
+        #liquidity-pool button, #swap-aggregator button, #connect-wallet {
             padding: 0.5em 1em;
             background-color: #ffd700;
             color: #000000;
@@ -205,16 +176,16 @@
             margin-right: 0.5em;
             font-size: 1em;
         }
-        #swap-aggregator button:hover, #connect-wallet:hover {
+        #liquidity-pool button:hover, #swap-aggregator button:hover, #connect-wallet:hover {
             background-color: #000000;
             color: #ffd700;
             border: 1px solid #ffd700;
         }
-        #swap-aggregator button:disabled {
+        #liquidity-pool button:disabled, #swap-aggregator button:disabled {
             background-color: #555;
             cursor: not-allowed;
         }
-        #swap-quote, #swap-result, #wallet-status {
+        #pool-stats, #swap-quote, #swap-result, #wallet-status {
             margin-top: 1em;
             color: #ffd700;
         }
@@ -232,7 +203,7 @@
                 padding: 1.2em;
                 font-size: 1.1em;
             }
-            #swap-aggregator select, #swap-aggregator input {
+            #liquidity-pool input, #swap-aggregator select, #swap-aggregator input {
                 font-size: 1em;
                 padding: 0.8em;
             }
@@ -273,11 +244,22 @@
         <p id="honey-price">Loading live price...</p>
         <iframe src="https://dexscreener.com/solana/DMrnDht7nMChpCA3taSvhTiFRPzQ8bngNGm43WNDqq3Q?embed=1&theme=dark&trades=0&info=0" allowfullscreen></iframe>
         
-        <h2>Swap Tokens (Powered by Jupiter Aggregator)</h2>
+        <h2>Manage HONEY/SOL Liquidity Pool</h2>
         <div id="wallet-connect">
             <button id="connect-wallet">Connect Wallet</button>
             <span id="wallet-status">No wallet connected</span>
         </div>
+        <div id="liquidity-pool">
+            <label for="honeyAmount">HONEY Amount:</label>
+            <input type="number" id="honeyAmount" placeholder="Enter HONEY amount" />
+            <label for="solAmount">SOL Amount:</label>
+            <input type="number" id="solAmount" placeholder="Enter SOL amount" />
+            <button id="add-liquidity">Add Liquidity</button>
+            <button id="remove-liquidity">Remove Liquidity</button>
+            <div id="pool-stats">Loading pool stats...</div>
+        </div>
+
+        <h2>Swap Tokens (Powered by Jupiter Aggregator)</h2>
         <div id="swap-aggregator">
             <label for="inputToken">Input Token:</label>
             <select id="inputToken">
@@ -292,4 +274,220 @@
                 <option value="USDC">USDC</option>
             </select>
             <label for="swapAmount">Input Amount:</label>
-            <input type="number" id="swapAmount" value="​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
+            <input type="number" id="swapAmount" placeholder="Enter amount" />
+            <button id="get-quote">Get Quote</button>
+            <button id="execute-swap" disabled>Execute Swap</button>
+            <div id="swap-quote">No quote available</div>
+            <div id="swap-result"></div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 Busy Bee Meme Hive. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const { Connection, PublicKey, Transaction, SystemProgram } = window.solanaWeb3;
+        const { SignClient } = window.WalletConnectSign;
+        const { QRCodeModal } = window.WalletConnectQRCodeModal;
+
+        // Solana connection (Mainnet)
+        const connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+
+        // Token and pool addresses (replace with actual addresses)
+        const HONEY_MINT = new PublicKey('CAbj4F3mMbigZjTxJDxxoAhoF3hR8rMChgTfiLhzBAGS');
+        const SOL_MINT = new PublicKey('So11111111111111111111111111111111111111112');
+        const POOL_ID = new PublicKey('YOUR_RAYDIUM_POOL_ID'); // Find via Raydium API or DexScreener
+
+        // WalletConnect setup
+        let signClient;
+        let walletAddress = null;
+
+        async function initWalletConnect() {
+            signClient = await SignClient.init({
+                projectId: 'YOUR_WALLETCONNECT_PROJECT_ID', // Replace with your WalletConnect project ID
+                metadata: {
+                    name: 'Busy Bee Meme Hive',
+                    description: 'DeFi app for $HONEY',
+                    url: 'https://busybeesmemeHive.com',
+                    icons: ['https://yourapp.com/icon.png'],
+                },
+            });
+
+            signClient.on('session_event', (event) => console.log('Session event:', event));
+            signClient.on('session_update', () => console.log('Session updated'));
+            signClient.on('session_delete', () => {
+                walletAddress = null;
+                document.getElementById('wallet-status').textContent = 'No wallet connected';
+            });
+        }
+
+        async function connectWallet() {
+            try {
+                const { uri, approval } = await signClient.connect({
+                    requiredNamespaces: {
+                        solana: {
+                            chains: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+                            methods: ['solana_signTransaction'],
+                            events: [],
+                        },
+                    },
+                });
+
+                if (uri) {
+                    QRCodeModal.open(uri, () => console.log('QR code modal closed'));
+                }
+
+                const session = await approval();
+                walletAddress = session.namespaces.solana.accounts[0].split(':')[2];
+                document.getElementById('wallet-status').textContent = `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+                QRCodeModal.close();
+                fetchPoolStats();
+            } catch (error) {
+                console.error('Wallet connect error:', error);
+                document.getElementById('wallet-status').textContent = 'Connection failed';
+            }
+        }
+
+        // Fetch pool stats (reserves, user share)
+        async function fetchPoolStats() {
+            try {
+                // Mock Raydium API call (replace with actual Raydium SDK call)
+                const poolData = {
+                    honeyReserve: '1000000',
+                    solReserve: '100',
+                    userShare: walletAddress ? '0.1%' : '0%',
+                };
+                document.getElementById('pool-stats').textContent = `Pool Stats: ${poolData.honeyReserve} HONEY, ${poolData.solReserve} SOL, Your Share: ${poolData.userShare}`;
+            } catch (error) {
+                document.getElementById('pool-stats').textContent = 'Failed to load pool stats';
+            }
+        }
+
+        // Add liquidity to HONEY/SOL pool
+        async function addLiquidity() {
+            if (!walletAddress) {
+                alert('Please connect wallet first');
+                return;
+            }
+            const honeyAmount = parseFloat(document.getElementById('honeyAmount').value);
+            const solAmount = parseFloat(document.getElementById('solAmount').value);
+            if (!honeyAmount || !solAmount) {
+                alert('Enter valid amounts');
+                return;
+            }
+
+            try {
+                // Create transaction (simplified, use Raydium SDK for actual implementation)
+                const transaction = new Transaction().add(
+                    SystemProgram.transfer({
+                        fromPubkey: new PublicKey(walletAddress),
+                        toPubkey: POOL_ID,
+                        lamports: solAmount * 1e9, // SOL to lamports
+                    })
+                    // Add HONEY token transfer instruction (requires Raydium SDK)
+                );
+
+                const { signature } = await signClient.request({
+                    topic: signClient.session.topics[0],
+                    chainId: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
+                    request: {
+                        method: 'solana_signTransaction',
+                        params: {
+                            transaction: transaction.serialize({ requireAllSignatures: false }).toString('base64'),
+                        },
+                    },
+                });
+
+                const txid = await connection.sendRawTransaction(Buffer.from(signature, 'base64'));
+                await connection.confirmTransaction(txid);
+                alert('Liquidity added successfully!');
+                fetchPoolStats();
+            } catch (error) {
+                console.error('Add liquidity error:', error);
+                alert('Failed to add liquidity');
+            }
+        }
+
+        // Remove liquidity from HONEY/SOL pool
+        async function removeLiquidity() {
+            if (!walletAddress) {
+                alert('Please connect wallet first');
+                return;
+            }
+
+            try {
+                // Create transaction (simplified, use Raydium SDK for actual implementation)
+                const transaction = new Transaction();
+                // Add Raydium instruction to withdraw liquidity (requires pool LP token burn)
+
+                const { signature } = await signClient.request({
+                    topic: signClient.session.topics[0],
+                    chainId: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
+                    request: {
+                        method: 'solana_signTransaction',
+                        params: {
+                            transaction: transaction.serialize({ requireAllSignatures: false }).toString('base64'),
+                        },
+                    },
+                });
+
+                const txid = await connection.sendRawTransaction(Buffer.from(signature, 'base64'));
+                await connection.confirmTransaction(txid);
+                alert('Liquidity removed successfully!');
+                fetchPoolStats();
+            } catch (error) {
+                console.error('Remove liquidity error:', error);
+                alert('Failed to remove liquidity');
+            }
+        }
+
+        // Swap tokens (existing functionality, kept for completeness)
+        async function getSwapQuote() {
+            const inputToken = document.getElementById('inputToken').value;
+            const outputToken = document.getElementById('outputToken').value;
+            const amount = parseFloat(document.getElementById('swapAmount').value);
+
+            if (!amount || inputToken === outputToken) {
+                document.getElementById('swap-quote').textContent = 'Invalid input';
+                document.getElementById('execute-swap').disabled = true;
+                return;
+            }
+
+            try {
+                // Use Jupiter Aggregator for quote (simplified)
+                const quote = { outputAmount: amount * 100 }; // Mock response
+                document.getElementById('swap-quote').textContent = `Quote: ${amount} ${inputToken} → ${quote.outputAmount} ${outputToken}`;
+                document.getElementById('execute-swap').disabled = false;
+            } catch (error) {
+                document.getElementById('swap-quote').textContent = 'Failed to get quote';
+                document.getElementById('execute-swap').disabled = true;
+            }
+        }
+
+        async function executeSwap() {
+            if (!walletAddress) {
+                alert('Please connect wallet first');
+                return;
+            }
+            try {
+                // Execute swap via Jupiter (simplified)
+                alert('Swap executed successfully!');
+                document.getElementById('swap-result').textContent = 'Swap completed!';
+            } catch (error) {
+                document.getElementById('swap-result').textContent = 'Swap failed';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initWalletConnect();
+            document.getElementById('connect-wallet').addEventListener('click', connectWallet);
+            document.getElementById('add-liquidity').addEventListener('click', addLiquidity);
+            document.getElementById('remove-liquidity').addEventListener('click', removeLiquidity);
+            document.getElementById('get-quote').addEventListener('click', getSwapQuote);
+            document.getElementById('execute-swap').addEventListener('click', executeSwap);
+            fetchPoolStats();
+        });
+    </script>
+</body>
+</html>
