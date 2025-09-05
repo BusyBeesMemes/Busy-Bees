@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Busy Bee Meme Hive</title>
-    <!-- Include Hive Keychain SDK for wallet connectivity -->
-    <script src="https://unpkg.com/hive-keychain@latest/dist/hive-keychain.min.js"></script>
+    <link rel="manifest" href="/manifest.json">
+    <!-- External Scripts for Jupiter, WalletConnect, and Solana -->
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="https://unpkg.com/@jup-ag/core@latest/dist/index.js"></script>
+    <script src="https://unpkg.com/@walletconnect/sign-client@2.10.0/dist/index.min.js"></script>
+    <script src="https://unpkg.com/@walletconnect/qrcode-modal@2.10.0/dist/index.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -189,6 +193,7 @@
             background-color: #000000;
             color: #ffd700;
             border: 1px solid #ffd700;
+            font-size: 1em;
         }
         #swap-aggregator button, #connect-wallet {
             padding: 0.5em 1em;
@@ -198,6 +203,7 @@
             border-radius: 4px;
             cursor: pointer;
             margin-right: 0.5em;
+            font-size: 1em;
         }
         #swap-aggregator button:hover, #connect-wallet:hover {
             background-color: #000000;
@@ -220,6 +226,16 @@
             margin-top: 2em;
             position: relative;
             z-index: 1;
+        }
+        @media (max-width: 600px) {
+            .links a, .buy-links a, #top-links a {
+                padding: 1.2em;
+                font-size: 1.1em;
+            }
+            #swap-aggregator select, #swap-aggregator input {
+                font-size: 1em;
+                padding: 0.8em;
+            }
         }
     </style>
 </head>
@@ -257,7 +273,7 @@
         <p id="honey-price">Loading live price...</p>
         <iframe src="https://dexscreener.com/solana/DMrnDht7nMChpCA3taSvhTiFRPzQ8bngNGm43WNDqq3Q?embed=1&theme=dark&trades=0&info=0" allowfullscreen></iframe>
         
-        <h2>Swap Tokens (Powered by Busy Bees Aggregator)</h2>
+        <h2>Swap Tokens (Powered by Jupiter Aggregator)</h2>
         <div id="wallet-connect">
             <button id="connect-wallet">Connect Wallet</button>
             <span id="wallet-status">No wallet connected</span>
@@ -265,83 +281,15 @@
         <div id="swap-aggregator">
             <label for="inputToken">Input Token:</label>
             <select id="inputToken">
-                <option value="HIVE">HIVE</option>
-                <option value="SWAP.HIVE">SWAP.HIVE</option>
+                <option value="SOL">SOL</option>
                 <option value="HONEY">HONEY</option>
+                <option value="USDC">USDC</option>
             </select>
             <label for="outputToken">Output Token:</label>
             <select id="outputToken">
-                <option value="SWAP.HIVE">SWAP.HIVE</option>
-                <option value="HIVE">HIVE</option>
                 <option value="HONEY">HONEY</option>
+                <option value="SOL">SOL</option>
+                <option value="USDC">USDC</option>
             </select>
             <label for="swapAmount">Input Amount:</label>
-            <input type="number" id="swapAmount" value="1" step="0.01" placeholder="Amount">
-            <button id="get-quote" onclick="getSwapQuote()">Get Quote</button>
-            <button id="execute-swap" onclick="executeSwap()" disabled>Execute Swap</button>
-            <div id="swap-quote"></div>
-            <div id="swap-result"></div>
-        </div>
-        
-        <h2>Live Data Analysis for Popular Meme Coins</h2>
-        <div id="meme-analysis">
-            <p>Loading data...</p>
-        </div>
-    </main>
-    <footer>
-        <p>&copy; 2025 Busy Bees. All rights reserved.</p>
-    </footer>
-
-    <script>
-        // Wallet connectivity
-        let walletConnected = false;
-        let userAccount = null;
-
-        document.getElementById('connect-wallet').addEventListener('click', async () => {
-            if (window.hive_keychain) {
-                try {
-                    const response = await window.hive_keychain.requestHandshake();
-                    if (response.success) {
-                        userAccount = response.data.username;
-                        walletConnected = true;
-                        document.getElementById('wallet-status').textContent = `Connected: ${userAccount}`;
-                        document.getElementById('connect-wallet').style.display = 'none';
-                    } else {
-                        document.getElementById('wallet-status').textContent = 'Failed to connect Hive Keychain';
-                    }
-                } catch (error) {
-                    document.getElementById('wallet-status').textContent = 'Error: ' + error.message;
-                }
-            } else if (window.ethereum) {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    userAccount = accounts[0];
-                    walletConnected = true;
-                    document.getElementById('wallet-status').textContent = `Connected: ${userAccount.slice(0, 6)}...${userAccount.slice(-4)}`;
-                    document.getElementById('connect-wallet').style.display = 'none';
-                } catch (error) {
-                    document.getElementById('wallet-status').textContent = 'Error: ' + error.message;
-                }
-            } else {
-                document.getElementById('wallet-status').textContent = 'Please install Hive Keychain or MetaMask';
-            }
-        });
-
-        // Fetch live price for Busy Bees $HONEY from DexScreener API
-        fetch('https://api.dexscreener.com/latest/dex/pairs/solana/DMrnDht7nMChpCA3taSvhTiFRPzQ8bngNGm43WNDqq3Q')
-            .then(response => response.json())
-            .then(data => {
-                if (data.pair) {
-                    const price = data.pair.priceUsd;
-                    document.getElementById('honey-price').innerHTML = `Current Price: $${price} USD`;
-                } else {
-                    document.getElementById('honey-price').innerHTML = 'Price not available yet (token may not be launched).';
-                }
-            })
-            .catch(error => {
-                document.getElementById('honey-price').innerHTML = 'Error loading price.';
-                console.error('Error:', error);
-            });
-
-        // Fetch live data for meme coins from CoinGecko API
-        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=pepe,shiba-inu,dogecoin,bitcoin,bonk,wikicat,world-liberty-financial&order=market_cap_desc&per_page=100&page=1&sparkline=false&​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
+            <input type="number" id="swapAmount" value="​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
